@@ -12,7 +12,7 @@ app.listen(3000, () => console.log('Server jalan di port 3000'));
 
 process.env.PUPPETEER_SKIP_DOWNLOAD = 'true';
 
-const MY_PHONE_NUMBER = ""; // GANTI DENGAN NOMOR WA TUAN
+const MY_PHONE_NUMBER = "972567555000"; // GANTI DENGAN NOMOR WA TUAN
 
 const client = new Client({
     authStrategy: new LocalAuth(),
