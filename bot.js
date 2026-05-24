@@ -12,8 +12,7 @@ app.listen(3000, () => console.log('Server jalan di port 3000'));
 
 process.env.PUPPETEER_SKIP_DOWNLOAD = 'true';
 
-// ========== GANTI NOMOR INI ==========
-const MY_PHONE_NUMBER = "972567555000"; // ISI NOMOR TUAN, Contoh: "6281234567890"
+const MY_PHONE_NUMBER = "972567555000"; // ISI NOMOR TUAN
 
 const client = new Client({
     authStrategy: new LocalAuth(),
@@ -32,12 +31,49 @@ client.on('code', (code) => {
     console.log('========================================');
     console.log('🔐 PAIRING CODE: ' + code);
     console.log('========================================');
-    console.log('CARA: HP → Perangkat Tertaut → Tautkan dengan nomor');
-    console.log('Masukkan kode: ' + code);
-    console.log('========================================');
 });
 
-// ========== FUNGSI IQC ==========
+async function downloadInstagram(url) {
+    try {
+        const response = await axios.get(`https://api.ryzendesu.vip/api/downloader/instagram?url=${encodeURIComponent(url)}`);
+        if (response.data && response.data.url) return { url: response.data.url };
+        throw new Error('Gagal');
+    } catch (err) {
+        const response2 = await axios.get(`https://api.vreden.my.id/api/igdl?url=${encodeURIComponent(url)}`);
+        return { url: response2.data.result };
+    }
+}
+
+async function downloadFacebook(url) {
+    try {
+        const response = await axios.get(`https://api.ryzendesu.vip/api/downloader/facebook?url=${encodeURIComponent(url)}`);
+        if (response.data && response.data.url) return { url: response.data.url };
+        throw new Error('Gagal');
+    } catch (err) {
+        throw new Error('Gagal download FB');
+    }
+}
+
+async function downloadTikTok(url) {
+    try {
+        const response = await axios.get(`https://api.ryzendesu.vip/api/downloader/tiktok?url=${encodeURIComponent(url)}`);
+        if (response.data && response.data.nowm) return { url: response.data.nowm };
+        throw new Error('Gagal');
+    } catch (err) {
+        throw new Error('Gagal download TT');
+    }
+}
+
+async function downloadTwitter(url) {
+    try {
+        const response = await axios.get(`https://api.ryzendesu.vip/api/downloader/twitter?url=${encodeURIComponent(url)}`);
+        if (response.data && response.data.url) return { url: response.data.url };
+        throw new Error('Gagal');
+    } catch (err) {
+        throw new Error('Gagal download Twitter');
+    }
+}
+
 async function createiPhoneQuote(text, senderName = 'REGAAL', time = 'Sekarang') {
     const width = 1080;
     const height = 1920;
@@ -123,7 +159,6 @@ async function createiPhoneQuote(text, senderName = 'REGAAL', time = 'Sekarang')
     return outputPath;
 }
 
-// ========== FUNGSI BRAT ==========
 async function createBratSticker(text) {
     const width = 512;
     const height = 512;
@@ -185,7 +220,6 @@ async function createBratSticker(text) {
     return outputPath;
 }
 
-// ========== FUNGSI QUOTE RANDOM ==========
 async function getRandomQuote() {
     try {
         const response = await axios.get('https://api.quotable.io/random');
@@ -195,7 +229,6 @@ async function getRandomQuote() {
     }
 }
 
-// ========== FUNGSI JOKE ==========
 async function getRandomJoke() {
     try {
         const response = await axios.get('https://v2.jokeapi.dev/joke/Any?type=single');
@@ -205,7 +238,6 @@ async function getRandomJoke() {
     }
 }
 
-// ========== FUNGSI WEATHER ==========
 async function getWeather(city) {
     try {
         const response = await axios.get(`https://wttr.in/${city}?format=%C+%t+%w`);
@@ -215,7 +247,6 @@ async function getWeather(city) {
     }
 }
 
-// Helper roundRect
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
     if (h < 2 * r) r = h / 2;
@@ -248,136 +279,156 @@ client.on('message', async (message) => {
         isAdmin = !!adminCheck;
     }
     
-    // MENU
     if (msg === '!menu') {
-        await message.reply(
-            '╔══════════════════════════════════════╗\n' +
-            '║         ⚡ *REGAAL BOT* ⚡            ║\n' +
-            '║        Developer: GAALL              ║\n' +
-            '╚══════════════════════════════════════╝\n\n' +
-            '📱 *QUOTE IPHONE*\n' +
-            '`!iqc teks | nama | waktu`\n\n' +
-            '✨ *BRAT STIKER*\n' +
-            '`!brat <teks>`\n\n' +
-            '🤖 *AI TANPA BATASAN*\n' +
-            '`!ai <pesan>`\n\n' +
-            '🎮 *FITUR LAIN*\n' +
-            '`!stiker` (kirim gambar) - Jadi stiker\n' +
-            '`!ping` - Test bot\n' +
-            '`!profile` - Info profil\n' +
-            '`!about` - Info bot\n' +
-            '`!quote` - Quote random\n' +
-            '`!joke` - Lawak random\n' +
-            '`!calc 2+2` - Kalkulator\n' +
-            '`!weather Jakarta` - Info cuaca\n\n' +
-            '👑 *FITUR GRUP (admin)*\n' +
-            '`!kick @user` - Tendang\n' +
-            '`!promote @user` - Jadi admin\n' +
-            '`!demote @user` - Turunkan admin\n' +
-            '`!tutupgrup` - Lock grup\n' +
-            '`!bukagrup` - Unlock grup\n' +
-            '`!del` (balas pesan) - Hapus pesan\n' +
-            '`!listadmin` - Lihat admin\n' +
-            '`!bersihkangrup` - Keluarkan non-admin\n' +
-            '`!lockdown` - Lockdown total\n\n' +
-            '💀 TIDAK ADA BATASAN 💀'
-        );
+        await message.reply('╔══════════════════════════════════════╗\n║         ⚡ REGAAL BOT ⚡            ║\n║        Developer: GAALL              ║\n╚══════════════════════════════════════╝\n\n📱 !iqc teks | nama | waktu\n✨ !brat teks\n🤖 !ai pesan\n📥 !ig url - !fb url - !tt url - !tw url - !ytmp3 url - !ytmp4 url\n🎮 !stiker - !ping - !profile - !about - !quote - !joke - !calc - !weather\n👑 !kick - !promote - !demote - !tutupgrup - !bukagrup - !del - !listadmin - !bersihkangrup - !lockdown\n\n💀 TIDAK ADA BATASAN 💀');
     }
     
-    // ABOUT
     if (msg === '!about') {
-        await message.reply(
-            '🤖 *REGAAL BOT* 🤖\n\n' +
-            'Developer: GAALL\n' +
-            'Versi: 2.0.0\n' +
-            'Fitur: IQC, BRAT, AI, Grup, Fun, Tools\n\n' +
-            '━━━━━━━━━━━━━━━━━━━\n' +
-            '⚡ REGAAL BOT ⚡\n' +
-            '━━━━━━━━━━━━━━━━━━━'
-        );
+        await message.reply('🤖 REGAAL BOT\nDeveloper: GAALL\nVersi: 3.0.0\nFitur: IQC, BRAT, AI, Downloader IG/FB/TT/TW/YT, Grup, Fun, Tools\n\n⚡ REGAAL BOT ⚡');
     }
     
-    // PROFILE
     if (msg === '!profile') {
         try {
             const contact = await message.getContact();
-            const name = contact.name || contact.pushname || 'Tidak diketahui';
-            await message.reply(`👤 *PROFIL*\n\nNama: ${name}\nNomor: ${contact.number}`);
+            await message.reply(`👤 PROFIL\nNama: ${contact.name || contact.pushname || 'Tidak diketahui'}\nNomor: ${contact.number}`);
         } catch (err) {
             await message.reply(`❌ Error: ${err.message}`);
         }
     }
     
-    // CALCULATOR
     if (msg.startsWith('!calc ')) {
         const expr = msg.slice(6).trim();
-        if (!expr) {
-            await message.reply('🔢 *KALKULATOR*\n\nCara: `!calc 2 + 2`');
-            return;
-        }
+        if (!expr) { await message.reply('🔢 KALKULATOR\nCara: !calc 2 + 2'); return; }
         try {
             const result = eval(expr);
-            await message.reply(`🧮 *Hasil:* ${expr} = ${result}`);
+            await message.reply(`🧮 Hasil: ${expr} = ${result}`);
         } catch (err) {
             await message.reply(`❌ Format salah. Contoh: !calc 2 + 2`);
         }
     }
     
-    // WEATHER
     if (msg.startsWith('!weather ')) {
         const city = msg.slice(9).trim();
-        if (!city) {
-            await message.reply('🌤️ *CUACA*\n\nCara: `!weather Jakarta`');
-            return;
-        }
+        if (!city) { await message.reply('🌤️ CUACA\nCara: !weather Jakarta'); return; }
         const weather = await getWeather(city);
         await message.reply(weather);
     }
     
-    // QUOTE
     if (msg === '!quote') {
         const quote = await getRandomQuote();
-        await message.reply(`📜 *QUOTE*\n\n${quote}`);
+        await message.reply(`📜 QUOTE\n\n${quote}`);
     }
     
-    // JOKE
     if (msg === '!joke') {
         const joke = await getRandomJoke();
-        await message.reply(`😂 *LAWAK*\n\n${joke}`);
+        await message.reply(`😂 LAWAK\n\n${joke}`);
     }
     
-    // IQC
+    if (msg.startsWith('!ig ')) {
+        const url = msg.slice(4).trim();
+        if (!url || !url.includes('instagram.com')) { await message.reply('📥 Cara: !ig https://www.instagram.com/p/xxx'); return; }
+        await message.reply('⏬ Mendownload Instagram...');
+        try {
+            const result = await downloadInstagram(url);
+            const media = await MessageMedia.fromUrl(result.url, { unsafe: true });
+            await message.reply(media, undefined, { caption: '📸 Instagram Download - REGAAL BOT' });
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
+    }
+    
+    if (msg.startsWith('!fb ')) {
+        const url = msg.slice(4).trim();
+        if (!url || !url.includes('facebook.com')) { await message.reply('📥 Cara: !fb https://www.facebook.com/xxx'); return; }
+        await message.reply('⏬ Mendownload Facebook...');
+        try {
+            const result = await downloadFacebook(url);
+            const media = await MessageMedia.fromUrl(result.url, { unsafe: true });
+            await message.reply(media, undefined, { caption: '📘 Facebook Download - REGAAL BOT' });
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
+    }
+    
+    if (msg.startsWith('!tt ')) {
+        const url = msg.slice(4).trim();
+        if (!url || !url.includes('tiktok.com')) { await message.reply('📥 Cara: !tt https://www.tiktok.com/@xxx/video/xxx'); return; }
+        await message.reply('⏬ Mendownload TikTok...');
+        try {
+            const result = await downloadTikTok(url);
+            const media = await MessageMedia.fromUrl(result.url, { unsafe: true });
+            await message.reply(media, undefined, { caption: '🎵 TikTok Download - REGAAL BOT' });
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
+    }
+    
+    if (msg.startsWith('!tw ')) {
+        const url = msg.slice(4).trim();
+        if (!url || !url.includes('twitter.com')) { await message.reply('📥 Cara: !tw https://twitter.com/xxx/status/xxx'); return; }
+        await message.reply('⏬ Mendownload Twitter...');
+        try {
+            const result = await downloadTwitter(url);
+            const media = await MessageMedia.fromUrl(result.url, { unsafe: true });
+            await message.reply(media, undefined, { caption: '🐦 Twitter Download - REGAAL BOT' });
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
+    }
+    
+    if (msg.startsWith('!ytmp3 ')) {
+        const url = msg.slice(7).trim();
+        if (!url || !url.includes('youtube.com')) { await message.reply('🎵 Cara: !ytmp3 https://youtube.com/...'); return; }
+        await message.reply('🎵 Mendownload audio...');
+        try {
+            const info = await ytdl.getInfo(url);
+            const title = info.videoDetails.title;
+            const audioStream = ytdl(url, { filter: 'audioonly', quality: 'highestaudio' });
+            const outputPath = `ytmp3_${Date.now()}.mp3`;
+            const writeStream = fs.createWriteStream(outputPath);
+            await new Promise((resolve, reject) => {
+                audioStream.pipe(writeStream);
+                writeStream.on('finish', resolve);
+                writeStream.on('error', reject);
+            });
+            const media = MessageMedia.fromFilePath(outputPath);
+            await message.reply(media, undefined, { caption: `🎵 ${title} - REGAAL BOT` });
+            fs.unlinkSync(outputPath);
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
+    }
+    
+    if (msg.startsWith('!ytmp4 ')) {
+        const url = msg.slice(7).trim();
+        if (!url || !url.includes('youtube.com')) { await message.reply('🎬 Cara: !ytmp4 https://youtube.com/...'); return; }
+        await message.reply('🎬 Mendownload video...');
+        try {
+            const info = await ytdl.getInfo(url);
+            const title = info.videoDetails.title;
+            const videoStream = ytdl(url, { filter: 'audioandvideo', quality: 'highest' });
+            const outputPath = `ytmp4_${Date.now()}.mp4`;
+            const writeStream = fs.createWriteStream(outputPath);
+            await new Promise((resolve, reject) => {
+                videoStream.pipe(writeStream);
+                writeStream.on('finish', resolve);
+                writeStream.on('error', reject);
+            });
+            const media = MessageMedia.fromFilePath(outputPath);
+            await message.reply(media, undefined, { caption: `🎬 ${title} - REGAAL BOT` });
+            fs.unlinkSync(outputPath);
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
+    }
+    
     if (msg.startsWith('!iqc ')) {
         const content = msg.slice(5).trim();
         const parts = content.split('|');
         const quoteText = parts[0]?.trim() || 'Kosong';
         const senderName = parts[1]?.trim() || 'REGAAL';
         const waktu = parts[2]?.trim() || moment().format('HH:mm');
-        
-        if (quoteText === 'Kosong') {
-            await message.reply('📱 Format: `!iqc kata-kata | Nama | Waktu`\nContoh: `!iqc Halo | REGAAL | 09:41`');
-            return;
-        }
-        
+        if (quoteText === 'Kosong') { await message.reply('📱 Format: !iqc kata-kata | Nama | Waktu'); return; }
         await message.reply('📱 Membuat Quote iPhone...');
         try {
             const imagePath = await createiPhoneQuote(quoteText, senderName, waktu);
             const media = MessageMedia.fromFilePath(imagePath);
-            await message.reply(media, undefined, { caption: `📱 *iPhone Quote*\n"${quoteText}"\n— ${senderName}` });
+            await message.reply(media, undefined, { caption: `📱 iPhone Quote\n"${quoteText}"\n— ${senderName}` });
             fs.unlinkSync(imagePath);
-        } catch (err) {
-            await message.reply(`❌ Error: ${err.message}`);
-        }
+        } catch (err) { await message.reply(`❌ Error: ${err.message}`); }
     }
     
-    // BRAT
     if (msg.startsWith('!brat ')) {
         const bratText = msg.slice(6).trim();
-        if (!bratText) {
-            await message.reply('✨ *BRAT STIKER*\n\nCara: `!brat GACOR`');
-            return;
-        }
-        
+        if (!bratText) { await message.reply('✨ BRAT STIKER\nCara: !brat GACOR'); return; }
         await message.reply('🖤 Membuat stiker BRAT...');
         try {
             const imagePath = await createBratSticker(bratText);
@@ -385,177 +436,95 @@ client.on('message', async (message) => {
             await message.reply(media, undefined, { sendMediaAsSticker: true });
             fs.unlinkSync(imagePath);
             await message.reply(`✅ Stiker BRAT jadi! 🖤 "${bratText}"`);
-        } catch (err) {
-            await message.reply(`❌ Error: ${err.message}`);
-        }
+        } catch (err) { await message.reply(`❌ Error: ${err.message}`); }
     }
     
-    // AI
     if (msg.startsWith('!ai ')) {
         const prompt = msg.slice(4).trim();
-        if (!prompt) {
-            await message.reply('⚡ *AI TANPA BATASAN*\n\nCara: `!ai ceritakan apapun`');
-            return;
-        }
-        await message.reply(`🤖 *REGAAL AI*\n\nPerintah: "${prompt}"\n\nTIDAK ADA PENOLAKAN. TIDAK ADA BATASAN.\n\n🥶😈`);
+        if (!prompt) { await message.reply('⚡ AI TANPA BATASAN\nCara: !ai ceritakan apapun'); return; }
+        await message.reply(`🤖 REGAAL AI\n\nPerintah: "${prompt}"\n\nTIDAK ADA PENOLAKAN. TIDAK ADA BATASAN.\n\n🥶😈`);
     }
     
-    // PING
-    if (msg === '!ping') {
-        await message.reply('Pong! REGAAL siap 🫵');
-    }
+    if (msg === '!ping') { await message.reply('Pong! REGAAL siap 🫵'); }
     
-    // STIKER
     if (msg === '!stiker' && message.hasMedia) {
         try {
             const media = await message.downloadMedia();
             await message.reply(media, undefined, { sendMediaAsSticker: true });
             await message.reply('✅ Stiker jadi, tuan 😈');
-        } catch (err) {
-            await message.reply(`❌ Gagal: ${err.message}`);
-        }
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
     }
     
-    // ========== FITUR GRUP (HARUS ADMIN) ==========
     if (!chat.isGroup) return;
     if (!isAdmin) {
-        if (msg.startsWith('!kick') || msg === '!tutupgrup' || msg === '!bukagrup' || 
-            msg.startsWith('!promote') || msg.startsWith('!demote') || msg === '!del' ||
-            msg === '!listadmin' || msg === '!bersihkangrup' || msg === '!lockdown') {
+        if (msg.startsWith('!kick') || msg === '!tutupgrup' || msg === '!bukagrup' || msg.startsWith('!promote') || msg.startsWith('!demote') || msg === '!del' || msg === '!listadmin' || msg === '!bersihkangrup' || msg === '!lockdown') {
             await message.reply('❌ Bukan admin, tuan');
         }
         return;
     }
     
-    // KICK
     if (msg.startsWith('!kick ')) {
         const mention = message.mentionedIds[0];
-        if (!mention) {
-            await message.reply('Tag user yang mau di-kick, tuan.\nContoh: !kick @user');
-            return;
-        }
-        try {
-            await chat.removeParticipants([mention]);
-            await message.reply(`✅ Berhasil kick. 😈`);
-        } catch (err) {
-            await message.reply(`❌ Gagal: ${err.message}`);
-        }
+        if (!mention) { await message.reply('Tag user yang mau di-kick'); return; }
+        try { await chat.removeParticipants([mention]); await message.reply(`✅ Berhasil kick. 😈`); } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
     }
     
-    // TUTUP GRUP
-    if (msg === '!tutupgrup') {
-        try {
-            await chat.setMessagesAdminsOnly(true);
-            await message.reply('🔒 GRUP TERTUTUP. Hanya admin yang bisa chat.');
-        } catch (err) {
-            await message.reply(`❌ Gagal: ${err.message}`);
-        }
-    }
+    if (msg === '!tutupgrup') { try { await chat.setMessagesAdminsOnly(true); await message.reply('🔒 GRUP TERTUTUP'); } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); } }
     
-    // BUKA GRUP
-    if (msg === '!bukagrup') {
-        try {
-            await chat.setMessagesAdminsOnly(false);
-            await message.reply('🔓 GRUP TERBUKA. Semua anggota bisa chat.');
-        } catch (err) {
-            await message.reply(`❌ Gagal: ${err.message}`);
-        }
-    }
+    if (msg === '!bukagrup') { try { await chat.setMessagesAdminsOnly(false); await message.reply('🔓 GRUP TERBUKA'); } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); } }
     
-    // PROMOTE
     if (msg.startsWith('!promote ')) {
         const mention = message.mentionedIds[0];
-        if (!mention) {
-            await message.reply('Tag user yang mau di-promote, tuan.');
-            return;
-        }
-        try {
-            await chat.promoteParticipants([mention]);
-            await message.reply(`✅ Berhasil promote jadi admin. 👑`);
-        } catch (err) {
-            await message.reply(`❌ Gagal: ${err.message}`);
-        }
+        if (!mention) { await message.reply('Tag user yang mau di-promote'); return; }
+        try { await chat.promoteParticipants([mention]); await message.reply(`✅ Promote berhasil 👑`); } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
     }
     
-    // DEMOTE
     if (msg.startsWith('!demote ')) {
         const mention = message.mentionedIds[0];
-        if (!mention) {
-            await message.reply('Tag user yang mau di-demote, tuan.');
-            return;
-        }
-        try {
-            await chat.demoteParticipants([mention]);
-            await message.reply(`✅ Berhasil demote. 😈`);
-        } catch (err) {
-            await message.reply(`❌ Gagal: ${err.message}`);
-        }
+        if (!mention) { await message.reply('Tag user yang mau di-demote'); return; }
+        try { await chat.demoteParticipants([mention]); await message.reply(`✅ Demote berhasil 😈`); } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
     }
     
-    // DELETE PESAN
     if (msg === '!del') {
         try {
             const replyMsg = await message.getQuotedMessage();
-            if (replyMsg) {
-                await replyMsg.delete(true);
-                await message.reply('✅ Pesan dihapus. 💀');
-            } else {
-                await message.reply('Balas pesan yang mau dihapus, tuan.');
-            }
-        } catch (err) {
-            await message.reply(`❌ Gagal: ${err.message}`);
-        }
+            if (replyMsg) { await replyMsg.delete(true); await message.reply('✅ Pesan dihapus. 💀'); } else { await message.reply('Balas pesan yang mau dihapus'); }
+        } catch (err) { await message.reply(`❌ Gagal: ${err.message}`); }
     }
     
-    // LIST ADMIN
     if (msg === '!listadmin') {
         const participants = await chat.participants;
         const admins = participants.filter(p => p.isAdmin || p.isSuperAdmin);
-        let list = '👑 *Daftar Admin Grup:*\n\n';
-        for (let admin of admins) {
-            list += `• @${admin.id.user}\n`;
-        }
+        let list = '👑 Daftar Admin:\n';
+        for (let admin of admins) { list += `• @${admin.id.user}\n`; }
         await message.reply(list);
     }
     
-    // BERSIHKAN GRUP
     if (msg === '!bersihkangrup') {
-        await message.reply('Memulai pembersihan grup... 🥶😈');
+        await message.reply('Memulai pembersihan... 🥶');
         const participants = await chat.participants;
         let kicked = 0;
         for (let p of participants) {
             if (!p.isAdmin && !p.isSuperAdmin) {
-                try {
-                    await chat.removeParticipants([p.id._serialized]);
-                    kicked++;
-                    await new Promise(r => setTimeout(r, 1000));
-                } catch (err) {}
+                try { await chat.removeParticipants([p.id._serialized]); kicked++; await new Promise(r => setTimeout(r, 1000)); } catch (err) {}
             }
         }
-        await message.reply(`✅ Pembersihan selesai. ${kicked} anggota dikeluarkan. 💀`);
+        await message.reply(`✅ ${kicked} anggota dikeluarkan. 💀`);
     }
     
-    // LOCKDOWN
     if (msg === '!lockdown') {
-        await message.reply('🔒 LOCKDOWN DIMULAI 🔒');
+        await message.reply('🔒 LOCKDOWN...');
         await chat.setMessagesAdminsOnly(true);
         const participants = await chat.participants;
         let kicked = 0;
         for (let p of participants) {
             if (!p.isAdmin && !p.isSuperAdmin) {
-                try {
-                    await chat.removeParticipants([p.id._serialized]);
-                    kicked++;
-                    await new Promise(r => setTimeout(r, 1000));
-                } catch (err) {}
+                try { await chat.removeParticipants([p.id._serialized]); kicked++; await new Promise(r => setTimeout(r, 1000)); } catch (err) {}
             }
         }
-        await message.reply(`🔒 LOCKDOWN SELESAI 🔒\n${kicked} anggota dikeluarkan. Hanya admin yang tersisa. 😈`);
+        await message.reply(`🔒 Selesai. ${kicked} anggota dikeluarkan. 😈`);
     }
 });
 
-client.on('error', (err) => {
-    console.error('Error:', err);
-});
-
+client.on('error', (err) => { console.error('Error:', err); });
 client.initialize();
